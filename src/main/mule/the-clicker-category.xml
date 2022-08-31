@@ -88,17 +88,23 @@ var Category = (val) -> vars."C-CS"[val]
 				<os:retrieve doc:name="SC-SSC" doc:id="f0265abc-b249-49a0-adf2-3af6ce597a80" key="SC-SSC" objectStore="Object_store" target="SC-SSC" >
 						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
 					</os:retrieve>
-			</route>
+					<validation:is-false doc:name="Is false" doc:id="ca33d077-38c9-417c-acbd-44c523102fee" expression='#[vars."C-CS" == "error"]' message="error"/>
+			
+</route>
 			<route>
 				<os:retrieve doc:name="SSC-SSSC" doc:id="e9b50805-60d6-4dde-84a6-3397db5c5bf2" key="SSC-SSSC" objectStore="Object_store" target="SSC-SSSC" >
 						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
 					</os:retrieve>
-			</route>
+					<validation:is-false doc:name="Is false" doc:id="af5dbe3e-5d30-4b5f-b39b-abea9c4039b1" expression='#[vars."C-CS" == "error"]' message="error"/>
+			
+</route>
 			<route>
 				<os:retrieve doc:name="SSSC-SSSCT" doc:id="27737a31-3770-4283-9f3d-0486904ade77" objectStore="Object_store" key="SSSC-SSSCT" target="SSSC-SSSCT" >
 						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
 					</os:retrieve>
-			</route>
+					<validation:is-false doc:name="Is false" doc:id="54fb65a1-8f0d-4d56-8b2d-5c6cbe8d11dc" expression='#[vars."C-CS" == "error"]' message="error"/>
+			
+</route>
 		</scatter-gather>
 			<error-handler >
 				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4940ecd7-f1f4-4670-8b9b-c949b8dd3e40" >
