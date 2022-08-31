@@ -1,0 +1,71 @@
+india:
+  desidime: https://www.desidime.com/
+  dealofthedayindia: 
+    - https://dealofthedayindia.com/store/amazon/
+    - https://dealofthedayindia.com/store/flipkart/
+    - https://dealofthedayindia.com/store/myntra/
+    - https://dealofthedayindia.com/store/tatacliq/
+    - https://dealofthedayindia.com/deals-of-the-day/
+    - https://dealofthedayindia.com/today-deals/
+    - https://dealofthedayindia.com/amazon-india-today-offers/
+    - https://dealofthedayindia.com/flipkart-today-offers/
+  buyhatke: https://compare.buyhatke.com/hottest-price-drop-deals#all
+  inrdeals: https://inrdeals.com/deals?page=
+  flipkart: https://www.flipkart.com/all/pr?sid=all&sort=popularity&p%5B%5D=facets.rating%255B%255D%3D4%25E2%2598%2585%2B%2526%2Babove&p%5B%5D=facets.discount_range_v1%255B%255D%3D50%2525%2Bor%2Bmore&page=
+  amazon:
+    url:
+      - https://www.amazon.in/s?i=fashion&bbn=7459781031&rh=n%3A7459781031%2Cp_72%3A1318476031%2Cp_36%3A1318503031&dc&fs=true&rnid=1318502031
+      - https://www.amazon.in/s?i=fashion&bbn=7459781031&rh=n%3A7459781031%2Cp_36%3A1318503031%2Cp_72%3A1318477031&s=date-desc-rank&dc&fs=true&rnid=1318475031&ds=v1%3AIb54iwhN0Yf7Xfi6LY2UmiHy6tIPfH9wgXXgvjhM9xE
+      - https://www.amazon.in/s?k=amazon+today+offer+sale&rh=p_72%3A1318476031&dc&adgrpid=59622387740&ext_vrnc=hi&gclid=CjwKCAjwgr6TBhAGEiwA3aVuIRVC6BoTT3hrd2kcjWtzNxDPYnEmlXavLkH0NODnRaT71EibIxxCoRoC9RUQAvD_BwE&hvadid=398132662241&hvdev=c&hvlocphy=9040205&hvnetw=g&hvqmt=e&hvrand=17551947763123732688&hvtargid=kwd-369238963428&hydadcr=24539_1971399&rnid=1318475031
+      - https://www.amazon.in/s?k=amazon+offers+for+today&rh=p_72%3A1318476031&s=relevanceblender&dc&adgrpid=57954819094&ext_vrnc=hi&gclid=CjwKCAjwgr6TBhAGEiwA3aVuIfnFwu29f2BIHCAB0bFriiXS4_yyGs3_wejx5tDz7DRjU_K9fXnvuhoCJtgQAvD_BwE&hvadid=294131645423&hvdev=c&hvlocphy=9040205&hvnetw=g&hvqmt=e&hvrand=2092548859242934995&hvtargid=kwd-375831079114&hydadcr=5873_1738706&rnid=1318475031
+      - https://www.amazon.in/best-offers-today-low-price/s?k=best+offers+today+low+price&rh=p_72%3A1318476031&dc&rnid=1318475031
+      - https://www.amazon.in/online-shopping-offers-today/s?k=online+shopping+offers+today&rh=p_72%3A1318476031&dc&rnid=1318475031
+      - https://www.amazon.in/s?i=fashion&bbn=26927652031&rh=n%3A26927652031%2Cp_72%3A1318476031%2Cp_n_pct-off-with-tax%3A27060457031&s=relevanceblender&dc&rnid=2665398031
+      - https://www.amazon.in/s?i=hpc&bbn=1374515031&rh=n%3A1374515031%2Cp_72%3A1318476031&dc&fs=true&rnid=1318475031
+      - https://www.amazon.in/s?i=kitchen&bbn=4951860031&rh=n%3A4951860031%2Cp_72%3A1318476031%2Cp_n_pct-off-with-tax%3A27060457031&dc&fs=true&rnid=2665398031
+      - https://www.amazon.in/s?i=electronics&bbn=976419031&rh=n%3A976419031%2Cp_72%3A1318476031%2Cp_n_pct-off-with-tax%3A27060457031&dc&rnid=2665398031
+      - https://www.amazon.in/s?i=kitchen&bbn=976442031&rh=n%3A976442031%2Cp_72%3A1318476031%2Cp_n_pct-off-with-tax%3A27060457031&dc&rnid=2665398031
+    pages: '10'  
+    tagId: ?tag=theclicker-21
+  Jiomart: 
+    type1:
+      - https://www.jiomart.com/c/groceries/2?prod_mart_groceries_products_popularity%5Brange%5D%5Bavg_discount_pct%5D=70%3A&prod_mart_groceries_products_popularity%5Bpage%5D=11
+      - https://www.jiomart.com/c/groceries/premium-fruits/3107?prod_mart_groceries_products_popularity%5Brange%5D%5Bavg_discount_pct%5D=11%3A
+      - https://www.jiomart.com/c/groceries/2?prod_mart_groceries_products_popularity%5Brange%5D%5Bavg_discount_pct%5D=40%3A&prod_mart_groceries_products_popularity%5Bpage%5D=2
+    type2:
+      - https://www.jiomart.com/c/groceries/2?prod_mart_groceries_products_popularity%5Brange%5D%5Bavg_discount_pct%5D=70%3A&prod_mart_groceries_products_popularity%5Bpage%5D=11
+      - https://www.jiomart.com/c/groceries/premium-fruits/3107?prod_mart_groceries_products_popularity%5Brange%5D%5Bavg_discount_pct%5D=11%3A
+      - https://www.jiomart.com/c/groceries/2?prod_mart_groceries_products_popularity%5Brange%5D%5Bavg_discount_pct%5D=40%3A&prod_mart_groceries_products_popularity%5Bpage%5D=2
+  croma:
+    - https://www.croma.com/home-appliances/c/5?q=%3Adiscount-desc%3AZAStatusFlag%3Atrue%3AskuStockFlag%3Atrue%3AskuStockFlag%3Atrue
+    - https://www.croma.com/phones-wearables/c/1?q=%3Adiscount-desc%3Acategory%3A95%3Acategory%3A931%3Acategory%3A611%3Acategory%3A542%3Acategory%3A1013%3Acategory%3A534%3Acategory%3A1014%3Acategory%3A884%3Acategory%3A100001%3Acategory%3A916%3Acategory%3A97%3Acategory%3A108%3Acategory%3A5792%3Acategory%3A886%3Acategory%3A550%3Acategory%3A40%3Acategory%3A109%3Acategory%3A539%3Acategory%3A935%3Acategory%3A769%3Acategory%3A996%3Acategory%3A540%3Acategory%3A112%3Acategory%3A930%3Acategory%3A945%3AZAStatusFlag%3Atrue%3AskuStockFlag%3Atrue%3AexcludeOOSFlag
+    - https://www.croma.com/kitchen-appliances/c/864?q=%3Adiscount-desc%3AZAStatusFlag%3Atrue%3AskuStockFlag%3Atrue%3AexcludeOOSFlag
+    - https://www.croma.com/grooming-personal-care/c/1021?q=%3Adiscount-desc%3AZAStatusFlag%3Atrue%3AskuStockFlag%3Atrue%3AexcludeOOSFlag
+  cluelink:
+    cidlink : https://linksredirect.com/?cid=119479&source=linkkit&url=
+  pepperfry: https://www.pepperfry.com/m/new_arrivals_shubh_sale.html?&type=RHS_banner_shubh_sale
+  mytokri: https://www.mytokri.com/
+  grabon: https://www.grabon.in/deals/
+  offertag:
+    - https://www.offertag.in/top-deals
+    - https://www.offertag.in/loot-deals
+    - https://www.offertag.in/pantry-deals
+    - https://www.offertag.in/new-deals
+  gadget360: https://gadgets360.com/deals/deals-of-the-day
+  
+  
+singapore:
+    abstractAPI: 
+      url : https://scrape.abstractapi.com/v1/
+      apiKey: "3720205268f34f4ab6b1503ea364435e"
+    fixer:
+      url: https://api.apilayer.com/fixer/latest
+      apiKey: Qldtm9ilMUPmAqay3QWE4391XXlsH23h
+    qoo10: https://www.qoo10.sg/gmkt.inc/Bestsellers/
+    zalora: https://www.zalora.com.my/lifestyle/new-products/
+    sephora: https://www.sephora.sg/sale?view=120
+    ebay: https://www.ebay.com.sg/b/Clothing-Shoes-Accessories/11450/bn_1852545?_pgn=
+    
+
+  
+    

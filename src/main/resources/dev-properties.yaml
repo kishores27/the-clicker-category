@@ -1,0 +1,11 @@
+api.id: "17830894"
+
+https:
+  port: "8082"
+  timeout: "3600000"
+  
+db:
+  url : jdbc:mysql://162.241.85.211:3306/devudvqe_affliate_products
+
+jks:
+  path: "certs/affiliate.jks"

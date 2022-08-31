@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+
+	<flow name="the-clicker-categoryFlow" doc:id="d8e933b7-cac7-4fc6-8b14-5e28c47cbc09" >
+		<http:listener doc:name="Listener" doc:id="d8499750-9b7a-4f06-a892-8e7f25e50aab" path="api/category" config-ref="Global_HTTP_Listener_config"/>
+		<set-variable value="#[attributes.queryParams.title]" doc:name="title" doc:id="aaa34480-d7b6-4354-9e12-eac3c9a01137" variableName="title"/>
+		
+		<flow-ref doc:name="the-clicker-category-store-category" doc:id="d5d84bb4-ddc3-4162-886f-ce0bd5674a47" name="the-clicker-category-store-category"/>
+		<logger level="INFO" doc:name="Logger" doc:id="f3c82624-a3be-49c7-9e51-eebcff7e0a97" message="#[vars.title]"/>
+		<ee:transform doc:name="Mapping" doc:id="51376d2f-7450-42ea-83fe-e9c95ab7a626">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+var regex = (val) -> lower(((((((" " ++ val ++ " | " ++ val ++ "\$" ++"|^" ++ val ) replace "(" with "") replace ")" with "") replace '"' with "'") replace "[" with "") replace "]" with "") replace "+" with "") default "" as Regex
+var mptitle = (val) ->  lower((((((val replace "(" with "") replace ")" with "") replace '"' with "'") replace "[" with "") replace "]" with "") replace "+" with "")
+fun setSSC(ptitle) = [(((keysOf(vars."SSSC-SSSCT") map {
+	key: $,
+	value: flatten(mptitle(ptitle) scan regex($))[0]
+}) filter $.value != null)),
+(((keysOf(vars."SSSC-SSSCT") map {
+	key: vars."SSSC-SSSCT"[$],
+	value: flatten(mptitle(ptitle) scan  regex($))[0]
+}) filter $.value != null))]
+var SSSCValue = ((setSSC(vars.title)[1].key) distinctBy ($))[-1] default "Trending"
+
+---
+flatten([SSSCValue])
+]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+		<ee:transform doc:name="response" doc:id="b5a628b0-2cc5-4a44-86bc-69675b54b032" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var productSubSubCategory = (val) -> vars."SSC-SSSC"[val]
+var productSubCategory = (val) -> vars."SC-SSC"[val]
+var Category = (val) -> vars."C-CS"[val]
+---
+(payload map {
+	productSubSubSubCategory: ($),
+	productSubSubCategory: productSubSubCategory($) replace '"' with "'" default "Trending",
+	productSubCategory: productSubCategory(productSubSubCategory($)) replace '"' with "'" default "Trending",
+	productCategory: Category(productSubCategory(productSubSubCategory($))) replace '"' with "'" default "Trending"
+})[0]]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+	<flow name="the-clicker-store-category" doc:id="164b7a02-5ace-4f08-a4f8-a64e15b929e2" >
+		<logger level="INFO" doc:name="category flow" doc:id="87ea027c-570e-4954-9460-204436b34123" message="inside category flow"/>
+		<os:store doc:name="C-CS" doc:id="d9b10d75-1f15-46cc-8b6d-41a7f01b10e0" key="C-CS" objectStore="Object_store">
+			<os:value ><![CDATA[#[readUrl("https://affiliate.devudu.net/C-CS.json","application/json")]]]></os:value>
+		</os:store>
+		<os:store doc:name="SC-SSC" doc:id="6b582377-937c-44f4-b47c-a3b8002a9e4e" key="SC-SSC" objectStore="Object_store">
+			<os:value ><![CDATA[#[readUrl("https://affiliate.devudu.net/SC-SSC.json","application/json")]]]></os:value>
+		</os:store>
+		<os:store doc:name="SSC-SSSC" doc:id="2dd64fce-48da-433f-b400-32f3609860a0" key="SSC-SSSC" objectStore="Object_store">
+			<os:value ><![CDATA[#[readUrl("https://affiliate.devudu.net/SSC-SSSC.json","application/json")]]]></os:value>
+		</os:store>
+		<os:store doc:name="SSSC-SSSCT" doc:id="73553e80-0ec2-49da-b9a3-f1c9681c5cca" key="SSSC-SSSCT" objectStore="Object_store">
+			<os:value ><![CDATA[#[readUrl("https://affiliate.devudu.net/SSSC-SSSCT.json","application/json")]]]></os:value>
+		</os:store>
+		<choice doc:name="Choice" doc:id="daf75ad2-ec21-4725-b9e2-91cb7eaefe4f" >
+			<when expression="#[vars.error]">
+				<flow-ref doc:name="the-clicker-category-store-category" doc:id="477114c1-e250-42c2-ac88-fe54a6bc18c0" name="the-clicker-category-store-category"/>
+			</when>
+		</choice>
+	</flow>
+	<sub-flow name="the-clicker-category-store-category" doc:id="65782257-dbec-48b9-8d28-7a704708cc87" >
+		<try doc:name="Try" doc:id="05440512-856c-475d-9ea9-927aa4098c70" >
+			<scatter-gather doc:name="Scatter-Gather" doc:id="ae84d5e2-b7dd-424e-8bb7-c6cfa313bdc4">
+			<route>
+				<os:retrieve doc:name="C-CS" doc:id="efac16aa-9913-4bc5-a849-28b2a7fb9109" key="C-CS" objectStore="Object_store" target="C-CS" >
+						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
+					</os:retrieve>
+					<validation:is-false doc:name="Is false" doc:id="05dbfa6b-f7de-464d-8d11-5d3a4795ef63" expression='#[vars."C-CS" == "error"]' message="empty store"/>
+			
+</route>
+			<route>
+				<os:retrieve doc:name="SC-SSC" doc:id="f0265abc-b249-49a0-adf2-3af6ce597a80" key="SC-SSC" objectStore="Object_store" target="SC-SSC" >
+						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
+					</os:retrieve>
+			</route>
+			<route>
+				<os:retrieve doc:name="SSC-SSSC" doc:id="e9b50805-60d6-4dde-84a6-3397db5c5bf2" key="SSC-SSSC" objectStore="Object_store" target="SSC-SSSC" >
+						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
+					</os:retrieve>
+			</route>
+			<route>
+				<os:retrieve doc:name="SSSC-SSSCT" doc:id="27737a31-3770-4283-9f3d-0486904ade77" objectStore="Object_store" key="SSSC-SSSCT" target="SSSC-SSSCT" >
+						<os:default-value ><![CDATA[#["error"]]]></os:default-value>
+					</os:retrieve>
+			</route>
+		</scatter-gather>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="4940ecd7-f1f4-4670-8b9b-c949b8dd3e40" >
+					<set-variable value="#[true]" doc:name="error" doc:id="91af2473-1429-485e-b09f-467c0f78e1e8" variableName="error" />
+					<flow-ref doc:name="get category" doc:id="e9221d09-f7f6-4a4c-a157-b2fae4b2f5ca" name="the-clicker-store-category"/>
+				
+</on-error-continue>
+			</error-handler>
+		</try>
+	</sub-flow>
+</mule>

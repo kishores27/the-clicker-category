@@ -1,0 +1,45 @@
+keytool -genkey -keyalg RSA -alias affiliate -keystore affiliate.jks
+
+keytool -export -alias affiliate -keystore affiliate.jks -file affiliate.cer
+
+keytool -certreq -keystore affiliate.jks -alias affiliate -file affiliate.csr
+
+keytool -import -keystore affiliate.jks -alias certificate -file certificate.crt
+
+keytool -import -keystore affiliate.jks -alias certificate -file ca_bundle.crt
+
+
+############################################################################
+keytool -genkey -keyalg RSA -alias affiliate -keystore affiliate.jks
+
+keytool -export -alias affiliate -keystore affiliate.jks -file affiliate.cer
+
+keytool -certreq -keystore affiliate.jks -alias affiliate -file affiliate.csr
+
+keytool -import -keystore affiliate.jks -alias affiliate -file Klix-2022-05-01-122450.cer
+
+######################################################################################
+
+keytool -genkeypair -keystore affiliate.jks -dname "CN=localhost, OU=KLIX, O=KLIX, L=TPT, ST=AP, C=Klix"  -keypass affiliate  -storepass affiliate  -keyalg RSA  -sigalg SHA1withRSA  -keysize 2048  -alias affiliate  -ext SAN=DNS:localhost,IP:127.0.0.1 -validity 9999
+
+
+###################################################################################
+https://stackoverflow.com/questions/30900915/create-java-keystore-from-private-key-and-ca-certificate-bundle
+
+https://xacmlinfo.org/2014/06/13/how-to-keystore-creating-jks-file-from-existing-private-key-and-certificate/
+
+winpty openssl pkcs12 -export -out affiliate.pkcs12 -inkey devudu_private.key -in devudu.crt -certfile devudu_ca_bundle.crt
+
+
+keytool -v -importkeystore -srckeystore affiliate.pkcs12 -srcstoretype PKCS12  -destkeystore affiliate.jks -deststoretype JKS
+
+keytool -keypasswd -alias affiliate -keystore affiliate.jks
+
+keytool -changealias -keystore affiliate.jks -alias affiliate
+
+
+
+
+
+
+

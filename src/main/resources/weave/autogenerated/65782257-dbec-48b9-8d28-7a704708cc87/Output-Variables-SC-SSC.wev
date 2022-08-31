@@ -1,0 +1,5 @@
+%dw 2.0
+
+type auto_65782257_dbec_48b9_8d28_7a704708cc87_Output_Variables_SC_SSC = {|  |} {"typeAlias": "Serializable",
+"typeId": "java.io.Serializable"}
+

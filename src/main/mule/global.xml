@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+	xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
+http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+	
+		<configuration-properties doc:name="Configuration properties" doc:id="2f236db0-3816-4084-aacc-53f44147238e" file="${env}-properties.yaml" />
+	<http:listener-config name="Global_HTTP_Listener_config" doc:name="Global_HTTP_Listener_config" doc:id="2ed7e96c-632f-441b-b363-dbd3f5dc494f" >
+		<http:listener-connection host="0.0.0.0" port="${https.port}" protocol="HTTPS" readTimeout="${https.timeout}">
+			<tls:context >
+				<tls:key-store type="jks" path="${jks.path}" keyPassword="${secure::jks.password}" password="${secure::jks.password}" />
+			</tls:context>
+		</http:listener-connection>
+	</http:listener-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="c82bf0d6-2668-47e3-91ec-d1b10143672d" file="common-env-properties.yaml" />
+		<os:object-store name="Object_store" doc:name="Object store" doc:id="bcffe867-6a78-4069-a309-05e5bc066cc0" />
+	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="81374678-ac01-4ab4-ac48-08c64d6d99f4" file="${env}-secure-properties.yaml" key="${secureKey}" >
+		<secure-properties:encrypt algorithm="Blowfish" />
+	</secure-properties:config>
+	</mule>
