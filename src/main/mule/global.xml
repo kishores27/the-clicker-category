@@ -23,8 +23,12 @@ http://www.mulesoft.org/schema/mule/secure-properties http://www.mulesoft.org/sc
 		</http:listener-connection>
 	</http:listener-config>
 	<configuration-properties doc:name="Configuration properties" doc:id="c82bf0d6-2668-47e3-91ec-d1b10143672d" file="common-env-properties.yaml" />
-		<os:object-store name="Object_store" doc:name="Object store" doc:id="bcffe867-6a78-4069-a309-05e5bc066cc0" />
 	<secure-properties:config name="Secure_Properties_Config" doc:name="Secure Properties Config" doc:id="81374678-ac01-4ab4-ac48-08c64d6d99f4" file="${env}-secure-properties.yaml" key="${secureKey}" >
 		<secure-properties:encrypt algorithm="Blowfish" />
 	</secure-properties:config>
+	<db:config name="Database_Config" doc:name="Database Config" doc:id="cfbee943-a8be-4f32-981a-10576e00645d" >
+		<db:generic-connection driverClassName="com.mysql.cj.jdbc.Driver" user="${secure::database.username}" password="${secure::database.password}" url="${db.url}">
+			<db:pooling-profile testConnectionOnCheckout="false" maxPoolSize="20" minPoolSize="3" acquireIncrement="2" maxWait="5"/>
+		</db:generic-connection>
+	</db:config>
 	</mule>

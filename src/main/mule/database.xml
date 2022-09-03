@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:sockets="http://www.mulesoft.org/schema/mule/sockets"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:db="http://www.mulesoft.org/schema/mule/db"
+	xmlns:batch="http://www.mulesoft.org/schema/mule/batch"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/db http://www.mulesoft.org/schema/mule/db/current/mule-db.xsd 
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/sockets http://www.mulesoft.org/schema/mule/sockets/current/mule-sockets.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
+	<flow name="the-clicker-india-insert-products-into-database"
+		doc:id="d38af0ad-0d31-4a02-af1b-ca7cdaa12482">
+			<vm:listener doc:name="Listener" doc:id="89b05108-1f96-4602-a5d8-d923809f5604" config-ref="VM_Config" queueName="india-product"/>
+		<ee:transform doc:name="tags from affiliate" doc:id="d4790f92-4771-4453-9cf7-293e458f0eb4">
+			<ee:message>
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables>
+					<ee:set-variable resource="dw/category/sssc-sssct.dwl" variableName="SSSC-SSSCT" />
+					<ee:set-variable resource="dw/category/ssc-sssc.dwl" variableName="SSC-SSSC" />
+					<ee:set-variable resource="dw/category/sc-ssc.dwl" variableName="SC-SSC" />
+					<ee:set-variable resource="dw/category/ssc-ssct.dwl" variableName="SSC-SSCT" />
+					<ee:set-variable resource="dw/category/c-cs.dwl" variableName="C-CS" />
+			
+</ee:variables>
+		</ee:transform>		<ee:transform doc:name="database format" doc:id="dcb078ea-08a2-4af5-af19-66bb83bf550a" >
+			<ee:message >
+				<ee:set-payload resource="dw/india/database-format.dwl" />
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="the-clicker-india-Insert_Products_into_Database"
+			doc:id="e8e4f71e-8850-4209-bb74-1f1405253211" maxFailedRecords="-1">
+			<batch:history>
+				<batch:expiration maxAge="0" ageUnit="MILLISECONDS" />
+			</batch:history>
+			<batch:process-records>
+				<batch:step name="Batch_Step_Remove_Duplicates"
+					doc:id="a1a14c3e-2ca0-47f1-a4f7-b63091be5a95">
+					<until-successful maxRetries="1"
+						doc:name="Until Successful"
+						doc:id="75f258ca-a901-436a-84d8-068edc4abcf6"
+						millisBetweenRetries="10000">
+						<db:select doc:name="Select"
+							doc:id="fcc873b7-762b-4277-bb4d-55d06149b8ab"
+							config-ref="Database_Config" target="result"
+							targetValue="#[output application/json --- payload]">
+							<db:sql><![CDATA[select * from products_dev where product_url = :url]]></db:sql>
+							<db:input-parameters><![CDATA[#[{url: payload.productURL}]]]></db:input-parameters>
+						</db:select>
+					</until-successful>
+					<ee:transform doc:name="Update Payload"
+						doc:id="d08c952a-12a6-449c-b02d-e6db8363c05b">
+						<ee:message>
+							<ee:set-payload resource="dw/india/select-query.dwl" />
+						
+</ee:message>
+					</ee:transform>
+				</batch:step>
+				<batch:step name="Batch_Step_Insert_Products"
+					doc:id="896aaf1c-8143-4429-92b0-d6f0727ca634"
+					acceptExpression="#[payload.newProduct == true]">
+					<ee:transform doc:name="Format" doc:id="e0d3be8b-08ae-4a60-9dcd-ac3c7e177b76">
+						<ee:message>
+							<ee:set-payload resource="dw/india/sssct-mapping.dwl" />
+						
+</ee:message>
+						<ee:variables />
+					
+</ee:transform>
+					<batch:aggregator doc:name="Batch Aggregator"
+						doc:id="b5ebeb06-697b-44c8-a0e8-93999f3fa4f5" size="200">
+						<db:bulk-insert doc:name="Bulk insert"
+							doc:id="22e0a746-43d3-4253-b004-0bd975fec0d3"
+							config-ref="Database_Config">
+							<db:bulk-input-parameters ><![CDATA[#[flatten(payload)]]]></db:bulk-input-parameters>
+							<db:sql><![CDATA[insert into products_dev 
+(product_title, product_original_price, product_offer_percentage,product_image,product_discount_price,product_created_time, product_uploaded_time,
+product_commerce_platform,product_url,product_category,product_sub_category,product_scrap_source,product_description, product_sub_sub_category,product_sub_sub_sub_category) values 
+(:productTitle,:productOriginalPrice,:productOfferPercentage,:productImage,
+:productDiscountPrice,:productCreatedTime,:productUploadedTime,:productEcommercePlatform,:productURL,:productCategory,:productSubCategory,:productScrapSource,:productDescription, :productSubSubCategory, :productSubSubSubCategory)]]></db:sql>
+						</db:bulk-insert>
+					</batch:aggregator>
+										<ee:transform doc:name="category map" doc:id="f985d95a-a9ae-44fd-a3d2-8c3d4f54548a" >
+						<ee:message >
+							<ee:set-payload resource="dw/india/all-category-mapping.dwl" />
+						</ee:message>
+						<ee:variables />
+					</ee:transform>
+				
+</batch:step>
+				<batch:step name="Batch_Step_Update_Products" doc:id="490ea510-eaa2-4900-9106-086505ee2f85" acceptExpression="#[payload.productPriceUpdated == true]">					<ee:transform doc:name="format" doc:id="70805587-d2df-4ca0-8dba-de28afb2433e" >
+						<ee:message >
+							<ee:set-payload resource="dw/india/set-product-upload-time.dwl" />
+						</ee:message>
+						<ee:variables />
+					</ee:transform>
+					<db:update doc:name="Update" doc:id="18e32a89-d77d-4804-bced-fd5eeed75c83" config-ref="Database_Config">
+						<db:sql ><![CDATA[update products_dev
+set product_title = :productTitle ,
+product_original_price = :productOriginalPrice ,
+product_offer_percentage = :productOfferPercentage,
+product_discount_price = :productDiscountPrice,
+product_uploaded_time = :productUploadedTime,
+product_url = :productURL,
+product_description = :productDescription
+
+where product_id = :id]]></db:sql>
+						<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+					</db:update>
+					<logger level="INFO" doc:name="Logger" doc:id="569b446c-444b-467f-9d66-661dc5ba0b28" message='#["India Product Updated " ++ vars.result[0].product_id default "Some Product"]' />
+				</batch:step>
+			
+</batch:process-records>
+			<batch:on-complete>
+				<logger level="INFO" doc:name="Logger"
+					doc:id="eab33a0c-9668-435e-a0b4-229fc9df883b" message="#[payload]" />
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+		<flow name="the-clicker-singapore-insert-products-into-database"
+		doc:id="2f621749-f269-44e7-b22a-5985ae0273d7">
+					<vm:listener doc:name="Listener" doc:id="23d77f7e-f5e6-4665-924e-52173829ef36" config-ref="VM_Config" queueName="singapore-product"/>
+		<ee:transform doc:name="tags from affiliate" doc:id="e85760c8-b0d2-4eb2-ba66-6189cae359f2">
+			<ee:message>
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+
+			</ee:message>
+			<ee:variables>
+					<ee:set-variable resource="dw/category/sssc-sssct.dwl" variableName="SSSC-SSSCT" />
+					<ee:set-variable resource="dw/category/ssc-sssc.dwl" variableName="SSC-SSSC" />
+					<ee:set-variable resource="dw/category/sc-ssc.dwl" variableName="SC-SSC" />
+					<ee:set-variable resource="dw/category/ssc-ssct.dwl" variableName="SSC-SSCT" />
+					<ee:set-variable resource="dw/category/c-cs.dwl" variableName="C-CS" />
+			
+</ee:variables>
+		</ee:transform>
+		<ee:transform doc:name="database format" doc:id="9f4c70cf-a775-4c2c-9151-e0b57cf5b357" >
+			<ee:message >
+				<ee:set-payload resource="dw/singapore/database-format.dwl" />
+			
+</ee:message>
+		</ee:transform>
+		<batch:job jobName="the-clicker-singapore-Insert_Products_into_Database"
+			doc:id="75cfcbe2-7179-4956-9af1-e78f093a5505" maxFailedRecords="-1">
+			<batch:history>
+				<batch:expiration maxAge="0" ageUnit="MILLISECONDS" />
+			</batch:history>
+			<batch:process-records>
+				<batch:step name="Batch_Step_Remove_Duplicates"
+					doc:id="6d21ed2f-2981-42ba-8e90-41527eb86748">
+					<until-successful maxRetries="1"
+						doc:name="Until Successful"
+						doc:id="04ea2719-a80f-4598-a907-baf5400319f4"
+						millisBetweenRetries="10000">
+						<db:select doc:name="Select"
+							doc:id="e94dc2f5-4e26-4ed3-aa57-794f3e3826d9"
+							config-ref="Database_Config" target="result"
+							targetValue="#[output application/json --- payload]">
+							<db:sql><![CDATA[select * from singapore_products_dev where product_url = :url]]></db:sql>
+							<db:input-parameters><![CDATA[#[{url: payload.productURL}]]]></db:input-parameters>
+						</db:select>
+					</until-successful>
+					<ee:transform doc:name="Update Payload"
+						doc:id="a7c0ae76-d810-4a42-8842-71cfe98b82e8">
+						<ee:message>
+							<ee:set-payload resource="dw/singapore/select-query.dwl" />
+						
+
+</ee:message>
+					</ee:transform>
+				</batch:step>
+				<batch:step name="Batch_Step_Insert_Products"
+					doc:id="4535d455-886d-40af-9f5d-6e68898a9a6b"
+					acceptExpression="#[payload.newProduct == true]">
+					<batch:aggregator doc:name="Batch Aggregator"
+						doc:id="7dfe88b0-fcb8-4f09-b39b-da7e145f1d9e" size="200">
+						<db:bulk-insert doc:name="Bulk insert"
+							doc:id="a57cad75-de21-4543-b4d1-385b760d2ce3"
+							config-ref="Database_Config">
+							<db:bulk-input-parameters ><![CDATA[#[flatten(payload)]]]></db:bulk-input-parameters>
+							<db:sql><![CDATA[insert into singapore_products_dev 
+(product_title, product_original_price, product_offer_percentage,product_image,product_discount_price,product_created_time, product_uploaded_time,
+product_commerce_platform,product_url,product_category,product_sub_category,product_scrap_source,product_description, product_sub_sub_category,product_sub_sub_sub_category) values 
+(:productTitle,:productOriginalPrice,:productOfferPercentage,:productImage,
+:productDiscountPrice,:productCreatedTime,:productUploadedTime,:productEcommercePlatform,:productURL,:productCategory,:productSubCategory,:productScrapSource,:productDescription, :productSubSubCategory, :productSubSubSubCategory)]]></db:sql>
+						</db:bulk-insert>
+					</batch:aggregator>
+					<ee:transform doc:name="Format" doc:id="88bcc2e2-d1d8-46f8-975d-feb0dd1ac457">
+						<ee:message>
+							<ee:set-payload resource="dw/india/sssct-mapping.dwl" />
+						
+</ee:message>
+						<ee:variables />
+					
+</ee:transform>
+					<ee:transform doc:name="category map" doc:id="23935c07-83c9-4dee-a87c-21b1b98cf802" >
+						<ee:message >
+							<ee:set-payload resource="dw/singapore/all-category-mapping.dwl" />
+						
+</ee:message>
+						<ee:variables />
+					</ee:transform>
+				
+</batch:step>
+				<batch:step name="Batch_Step_Update_Products" doc:id="403f39cf-81fa-41b3-886f-669928cd416d" acceptExpression="#[payload.productPriceUpdated == true]">
+					<ee:transform doc:name="format" doc:id="6954174f-8ee8-4995-8c6e-7b6abf85c9b4" >
+						<ee:message >
+							<ee:set-payload resource="dw/singapore/set-product-upload-time.dwl" />
+						
+</ee:message>
+						<ee:variables />
+					</ee:transform>
+					<db:update doc:name="Update" doc:id="7e9d482c-f029-4ce8-9322-60f1af0ef4b4" config-ref="Database_Config">
+						<db:sql ><![CDATA[update singapore_products_dev
+set product_title = :productTitle ,
+product_original_price = :productOriginalPrice ,
+product_offer_percentage = :productOfferPercentage,
+product_discount_price = :productDiscountPrice,
+product_uploaded_time = :productUploadedTime,
+product_url = :productURL,
+product_description = :productDescription
+
+where product_id = :id]]></db:sql>
+						<db:input-parameters ><![CDATA[#[payload]]]></db:input-parameters>
+					</db:update>
+					<logger level="INFO" doc:name="Logger" doc:id="5754d2a2-fd14-45d3-a9bb-ab5ff97c7193" message='#["Singapore Product Updated " ++ vars.result[0].product_id default "Some Product"]' />
+				</batch:step>
+			
+</batch:process-records>
+			<batch:on-complete>
+				<logger level="INFO" doc:name="Logger"
+					doc:id="0d4e4926-ca5f-45e3-8298-78a934d7ac9a" message="#[payload]" />
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>

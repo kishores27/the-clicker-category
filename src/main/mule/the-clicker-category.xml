@@ -1,19 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
-	xmlns:validation="http://www.mulesoft.org/schema/mule/validation"
-	xmlns:os="http://www.mulesoft.org/schema/mule/os" xmlns:http="http://www.mulesoft.org/schema/mule/http"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
+<mule xmlns:vm="http://www.mulesoft.org/schema/mule/vm"
+	xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
+	xmlns:validation="http://www.mulesoft.org/schema/mule/validation" xmlns:os="http://www.mulesoft.org/schema/mule/os"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/os http://www.mulesoft.org/schema/mule/os/current/mule-os.xsd
-http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd">
+http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mule/validation/current/mule-validation.xsd
+http://www.mulesoft.org/schema/mule/vm http://www.mulesoft.org/schema/mule/vm/current/mule-vm.xsd">
 
-	<flow name="the-clicker-categoryFlow" doc:id="d8e933b7-cac7-4fc6-8b14-5e28c47cbc09" >
-		<http:listener doc:name="Listener" doc:id="d8499750-9b7a-4f06-a892-8e7f25e50aab" path="api/category" config-ref="Global_HTTP_Listener_config"/>
-		<set-variable value="#[attributes.queryParams.title]" doc:name="title" doc:id="aaa34480-d7b6-4354-9e12-eac3c9a01137" variableName="title"/>
-			<ee:transform doc:name="tags from affiliate" doc:id="ecd0c508-cf59-493f-a850-55aeb7e89797">
+	<http:request-config name="HTTP_Affiliate_Category_Request_configuration" doc:name="HTTP Request configuration" doc:id="6b6f796c-b990-43ba-991c-a082ea6b17be" >
+		<http:request-connection host="affiliate.devudu.net" protocol="HTTPS"/>
+	</http:request-config>
+	<ee:object-store-caching-strategy name="Caching_Strategy" doc:name="Caching Strategy" doc:id="957e14e0-0709-41d5-aec6-9a50aab42079" >
+		<os:private-object-store />
+	</ee:object-store-caching-strategy>
+	<vm:config name="VM_Config" doc:name="VM Config" doc:id="67ab0acf-7adb-46f5-826e-03523cfe60a2" timeoutUnit="SECONDS" errorMappings="" content="#[payload]" timeout="5" transactionalAction="JOIN_IF_POSSIBLE" queueName="india-product" config-ref="VM_Config" correlationId="">
+		<vm:queues >
+			<vm:queue queueName="india-product" />
+			<vm:queue queueName="singapore-product" />
+		</vm:queues>
+	</vm:config>
+	<sub-flow name="the-clicker-categorySub_Flow" doc:id="687151b7-a116-4fad-be74-3d36b0938cf7" >
+		<ee:transform doc:name="tags from affiliate" doc:id="ecd0c508-cf59-493f-a850-55aeb7e89797">
 			<ee:message>
 			</ee:message>
 			<ee:variables>
@@ -24,7 +35,25 @@ http://www.mulesoft.org/schema/mule/validation http://www.mulesoft.org/schema/mu
 			
 </ee:variables>
 		</ee:transform>
+	</sub-flow>
+	<flow name="the-clicker-categoryFlow1" doc:id="0c4759ab-1e1e-46a2-89ab-d0725226b109" >
+		<http:listener doc:name="Listener" doc:id="09f648b5-df98-4431-b20f-f2beee250eae" config-ref="Global_HTTP_Listener_config" path="/product/india" allowedMethods="POST"/>
+		<ee:transform doc:name="payload" doc:id="8fd8d412-c9c3-443c-8041-9ab2fa340df5" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/java
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<vm:publish doc:name="Publish" doc:id="67ab0acf-7adb-46f5-826e-03523cfe60a2" config-ref="VM_Config" queueName="india-product"/>
+	</flow>
+	<flow name="the-clicker-categoryFlow" doc:id="d8e933b7-cac7-4fc6-8b14-5e28c47cbc09" >
+		<set-variable value="#[attributes.queryParams.title]" doc:name="title" doc:id="aaa34480-d7b6-4354-9e12-eac3c9a01137" variableName="title"/>
+		<flow-ref doc:name="the-clicker-categorySub_Flow" doc:id="172630da-2872-4342-9f0b-a8a42c2bbd54" name="the-clicker-get-category"/>
 		<logger level="INFO" doc:name="Logger" doc:id="f3c82624-a3be-49c7-9e51-eebcff7e0a97" message="#[vars.title]"/>
+		<logger level="INFO" doc:name="Logger" doc:id="465116fc-35e9-40c9-a0f7-059f30adc91a" message='#[vars."C-CS"]'/>
+		<logger level="INFO" doc:name="Logger" doc:id="984c135c-aee3-4267-8d1c-f4b09077fcea" message='#[vars."SC-SSC"]'/>
 		<ee:transform doc:name="Mapping" doc:id="51376d2f-7450-42ea-83fe-e9c95ab7a626">
 				<ee:message>
 					<ee:set-payload><![CDATA[%dw 2.0
@@ -43,9 +72,11 @@ var SSSCValue = ((setSSC(vars.title)[1].key) distinctBy ($))[-1] default "Trendi
 
 ---
 flatten([SSSCValue])
+
 ]]></ee:set-payload>
 				</ee:message>
 			</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9ba87f21-d7b2-41ca-a2bd-8c559c8325ee" message="#[payload]"/>
 		<ee:transform doc:name="response" doc:id="b5a628b0-2cc5-4a44-86bc-69675b54b032" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -62,5 +93,33 @@ var Category = (val) -> vars."C-CS"[val]
 })[0]]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
+	</flow>
+	<flow name="the-clicker-get-category" doc:id="c712cc81-cf5f-4301-86e7-c97f0dd3c358" >
+		<scatter-gather doc:name="Scatter-Gather" doc:id="979fa1a3-70b7-4ecf-a94c-e7bf86b3a15e" >
+			<route>
+				<ee:cache doc:name="Cache" doc:id="0355f140-4d0f-4cd5-82b8-ace49c21a3dc" >
+					<http:request method="GET" doc:name="C-CS" doc:id="ff0d36e2-d90e-4ce5-bc77-03d7b36eeb3d" config-ref="HTTP_Affiliate_Category_Request_configuration" path="/C-CS.json" />
+				</ee:cache>
+				<set-variable value="#[payload]" doc:name="C-CS" doc:id="d99a5fa2-0915-4af0-9a48-f4df812e1afc" variableName="C-CS"/>
+			</route>
+			<route>
+				<ee:cache doc:name="Cache" doc:id="b8a43e85-bde2-497b-ad80-538da1710a2a" >
+					<http:request method="GET" doc:name="SC-SSC" doc:id="18832528-7463-44a8-ace9-6b0b717cb897" config-ref="HTTP_Affiliate_Category_Request_configuration" path="/SC-SSC.json" />
+				</ee:cache>
+				<set-variable value="#[payload]" doc:name="SC-SSC" doc:id="a849da2d-81ca-4da4-993d-6196057035fe" variableName="SC-SSC"/>
+			</route>
+			<route>
+				<ee:cache doc:name="Cache" doc:id="20d1dc0e-3634-4ce7-969c-64fadaa2858d" >
+					<http:request method="GET" doc:name="SSC-SSSC" doc:id="ba1c6f38-76e9-40f4-9637-baf07829dd6f" config-ref="HTTP_Affiliate_Category_Request_configuration" path="/SSC-SSSC.json" />
+				</ee:cache>
+				<set-variable value="#[payload]" doc:name="SSC-SSSC" doc:id="85fe5afa-b37e-49fc-9eec-b361da0cbb21" variableName="SSC-SSSC"/>
+			</route>
+			<route>
+				<ee:cache doc:name="Cache" doc:id="6638b1a1-a555-4897-934f-3e4ef5723c9a" >
+					<http:request method="GET" doc:name="SSSC-SSSCT" doc:id="e916c99e-70f4-47d8-8e0c-7f68ef6909a0" config-ref="HTTP_Affiliate_Category_Request_configuration" path="/SSSC-SSSCT.json" />
+				</ee:cache>
+				<set-variable value="#[payload]" doc:name="SSSC-SSSCT" doc:id="640ae87a-0962-45ac-8c52-37554ec61f66" variableName="SSSC-SSSCT"/>
+			</route>
+		</scatter-gather>
 	</flow>
 </mule>
